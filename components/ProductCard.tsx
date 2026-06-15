@@ -25,6 +25,14 @@ export default function ProductCard({ product, owned, onBuy }: Props) {
           Adquirido
         </div>
       )}
+      {!owned && product.free && (
+        <div
+          className="absolute top-3 right-3 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+          style={{ backgroundColor: '#22c55e20', color: '#16a34a', border: '1px solid #22c55e40' }}
+        >
+          Grátis
+        </div>
+      )}
 
       <div className="h-1 w-full" style={{ backgroundColor: '#FF6803' }} />
 
@@ -62,6 +70,15 @@ export default function ProductCard({ product, owned, onBuy }: Props) {
             >
               <ExternalLink size={14} />
               Acessar produto
+            </a>
+          ) : product.free ? (
+            <a
+              href={`/produtos/${product.slug}`}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90"
+              style={{ backgroundColor: '#FF6803' }}
+            >
+              <ExternalLink size={14} />
+              Acessar grátis
             </a>
           ) : product.type === 'direct' ? (
             <button

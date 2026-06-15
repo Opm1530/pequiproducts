@@ -2,7 +2,7 @@
 
 import bcrypt from 'bcryptjs'
 import { redirect } from 'next/navigation'
-import { getUserByEmail, createUser } from '@/lib/queries'
+import { getUserByEmail, createUser, grantProductAccess } from '@/lib/queries'
 import { signToken, setSessionCookie, clearSessionCookie } from '@/lib/auth'
 
 export async function login(formData: FormData) {
@@ -32,6 +32,8 @@ export async function signup(formData: FormData) {
   const hash = await bcrypt.hash(password, 12)
   const user = await createUser(email, hash)
   if (!user) return { error: 'Erro ao criar conta. Tente novamente.' }
+
+  await grantProductAccess(user.id, 'cde')
 
   const token = await signToken({ id: user.id, email: user.email, role: user.role })
   await setSessionCookie(token)

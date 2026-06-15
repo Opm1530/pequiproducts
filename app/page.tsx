@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { PRODUCTS } from '@/lib/products'
-import { MessageCircle, ShoppingCart, Instagram, Facebook, Twitter } from 'lucide-react'
+import { MessageCircle, ShoppingCart } from 'lucide-react'
 
 export default function HomePage() {
   const whatsappBase = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
@@ -54,18 +54,14 @@ export default function HomePage() {
 
         {/* Social icons */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
-          {[
-            { Icon: Instagram, href: '#' },
-            { Icon: Facebook, href: '#' },
-            { Icon: Twitter, href: '#' },
-          ].map(({ Icon, href }) => (
+          {['IG', 'FB', 'X'].map(label => (
             <a
-              key={Icon.displayName}
-              href={href}
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:opacity-70"
+              key={label}
+              href="#"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all hover:opacity-70"
               style={{ backgroundColor: '#0B0501', color: '#fff' }}
             >
-              <Icon size={15} />
+              {label}
             </a>
           ))}
         </div>

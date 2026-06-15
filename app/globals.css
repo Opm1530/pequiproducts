@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@source "../app";
+@source "../components";
+
+:root {
+  --orange: #FF6803;
+  --orange-dark: #AE3A02;
+  --gray-light: #BFBFBF;
+  --black-deep: #0B0501;
+  --bg: #E8E8E8;
+}
+
+@theme inline {
+  --color-orange: var(--orange);
+  --color-orange-dark: var(--orange-dark);
+  --color-bg: var(--bg);
+  --color-black-deep: var(--black-deep);
+}

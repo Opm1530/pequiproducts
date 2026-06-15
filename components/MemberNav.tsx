@@ -16,32 +16,46 @@ export default function MemberNav({ isAdmin }: Props) {
   ]
 
   return (
-    <nav className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gray-950/80 backdrop-blur sticky top-0 z-10">
-      <Link href="/dashboard" className="text-white font-bold text-lg tracking-tight">
-        Pequi<span className="text-violet-400">Products</span>
+    <nav
+      className="flex items-center justify-between px-8 py-4 sticky top-0 z-10"
+      style={{ backgroundColor: '#E8E8E8', borderBottom: '1px solid #d0d0d0' }}
+    >
+      <Link href="/dashboard" className="font-black text-lg tracking-tight" style={{ color: '#0B0501' }}>
+        Pequi<span style={{ color: '#FF6803' }}>Products</span>
       </Link>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 rounded-full px-2 py-2" style={{ backgroundColor: '#0B0501' }}>
         {links.map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-              pathname === href ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}>
-            <Icon size={16} />{label}
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
+            style={pathname === href
+              ? { backgroundColor: '#FF6803', color: '#fff' }
+              : { color: '#BFBFBF' }
+            }
+          >
+            <Icon size={15} />{label}
           </Link>
         ))}
 
         {isAdmin && (
-          <Link href="/admin/dashboard"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
-            <ShieldCheck size={16} />Admin
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
+            style={{ color: '#BFBFBF' }}
+          >
+            <ShieldCheck size={15} />Admin
           </Link>
         )}
 
         <form action={logout}>
-          <button type="submit"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-white/5 transition-colors ml-2">
-            <LogOut size={16} />Sair
+          <button
+            type="submit"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ml-1"
+            style={{ color: '#BFBFBF' }}
+          >
+            <LogOut size={15} />Sair
           </button>
         </form>
       </div>

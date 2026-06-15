@@ -22,7 +22,9 @@ export default function LojaClient({ products, ownedSlugs }: Props) {
     <div className="space-y-10">
       {owned.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-violet-400 uppercase tracking-widest mb-4">Já adquiridos</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#FF6803' }}>
+            Já adquiridos
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {owned.map(p => (
               <ProductCard key={p.slug} product={p} owned onBuy={handleBuy} />
@@ -33,7 +35,9 @@ export default function LojaClient({ products, ownedSlugs }: Props) {
 
       <div>
         {owned.length > 0 && (
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-4">Disponíveis</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#BFBFBF' }}>
+            Disponíveis
+          </h2>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {available.map(p => (

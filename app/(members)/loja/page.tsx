@@ -13,8 +13,11 @@ export default async function LojaPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Loja</h1>
-        <p className="text-gray-400 text-sm mt-1">Todos os nossos produtos em um lugar</p>
+        <span className="font-mono text-xs tracking-widest block mb-1" style={{ color: '#BFBFBF' }}>
+          VITRINE COMPLETA
+        </span>
+        <h1 className="font-black text-3xl" style={{ color: '#0B0501' }}>Loja</h1>
+        <p className="text-sm mt-1" style={{ color: '#6b6b6b' }}>Todos os nossos produtos em um lugar</p>
       </div>
       <LojaClient products={PRODUCTS} ownedSlugs={ownedSlugs} />
     </div>

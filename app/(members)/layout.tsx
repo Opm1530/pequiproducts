@@ -7,9 +7,9 @@ export default async function MembersLayout({ children }: { children: React.Reac
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E8E8' }}>
       <MemberNav isAdmin={user.role === 'admin'} />
-      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+      <main className="max-w-7xl mx-auto px-8 py-10">{children}</main>
     </div>
   )
 }

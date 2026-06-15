@@ -1,0 +1,25 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://default:Ginanye123@docker-postgres-1:5432/pequiproducts
+      JWT_SECRET: ${JWT_SECRET}
+      KIWIFY_WEBHOOK_SECRET: ${KIWIFY_WEBHOOK_SECRET}
+      NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER}
+      NEXT_PUBLIC_KIWIFY_CDE_URL: ${NEXT_PUBLIC_KIWIFY_CDE_URL}
+      NEXT_PUBLIC_KIWIFY_BDAQV_URL: ${NEXT_PUBLIC_KIWIFY_BDAQV_URL}
+      NEXT_PUBLIC_KIWIFY_BDI_URL: ${NEXT_PUBLIC_KIWIFY_BDI_URL}
+      KIWIFY_PRODUCT_ID_CDE: ${KIWIFY_PRODUCT_ID_CDE}
+      KIWIFY_PRODUCT_ID_BDAQV: ${KIWIFY_PRODUCT_ID_BDAQV}
+      KIWIFY_PRODUCT_ID_BDI: ${KIWIFY_PRODUCT_ID_BDI}
+    networks:
+      - default
+      - postgres_net
+
+networks:
+  postgres_net:
+    external: true
+    name: docker_internal

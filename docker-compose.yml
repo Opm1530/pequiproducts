@@ -2,8 +2,8 @@ services:
   app:
     build: .
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       DATABASE_URL: postgresql://default:Ginanye123@docker-postgres-1:5432/pequiproducts
       JWT_SECRET: ${JWT_SECRET}

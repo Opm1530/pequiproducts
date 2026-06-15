@@ -9,6 +9,7 @@ export type Product = {
   kiwifyUrl?: string
   whatsappMessage?: string
   features?: string[]
+  free?: boolean
   color: string
 }
 
@@ -21,6 +22,7 @@ export const PRODUCTS: Product[] = [
     type: 'direct',
     kiwifyUrl: process.env.NEXT_PUBLIC_KIWIFY_CDE_URL,
     features: ['Cálculo de margem e ticket médio', 'ROI e ponto de equilíbrio', 'Projeção de faturamento', 'Funciona para qualquer nicho'],
+    free: true,
     color: 'from-violet-500 to-purple-600',
   },
   {

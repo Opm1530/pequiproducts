@@ -155,7 +155,7 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
             <span className="font-mono text-xs tracking-widest block mb-2" style={{ color: '#FF6803' }}>
-              ACESSO IMEDIATO • ENTREGA DIGITAL
+              1 GRATUITO • ACESSO IMEDIATO • ENTREGA DIGITAL
             </span>
             <h2 className="font-black text-3xl md:text-4xl" style={{ color: '#0B0501' }}>
               Ferramentas que você<br className="hidden md:block" /> usa hoje mesmo
@@ -177,12 +177,9 @@ export default function HomePage() {
               }}
             >
               {i === 0 && (
-                <div className="px-7 pt-5">
-                  <span
-                    className="text-xs font-bold px-3 py-1 rounded-full"
-                    style={{ backgroundColor: '#FF680325', color: '#FF6803' }}
-                  >
-                    ⭐ Mais vendido
+                <div className="px-7 pt-5 flex gap-2 flex-wrap">
+                  <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#22c55e20', color: '#16a34a' }}>
+                    🎁 Gratuito
                   </span>
                 </div>
               )}
@@ -214,16 +211,27 @@ export default function HomePage() {
                   </ul>
                 )}
 
-                <a
-                  href={product.kiwifyUrl ?? '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
-                  style={{ backgroundColor: '#FF6803', color: '#fff' }}
-                >
-                  <ShoppingCart size={15} />
-                  Comprar agora
-                </a>
+                {product.free ? (
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                    style={{ backgroundColor: '#FF6803', color: '#fff' }}
+                  >
+                    Acessar grátis
+                    <ArrowRight size={15} />
+                  </Link>
+                ) : (
+                  <a
+                    href={product.kiwifyUrl ?? '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                    style={{ backgroundColor: '#FF6803', color: '#fff' }}
+                  >
+                    <ShoppingCart size={15} />
+                    Comprar agora
+                  </a>
+                )}
               </div>
             </div>
           ))}

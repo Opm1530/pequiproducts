@@ -72,3 +72,93 @@ export async function getInfluencers() {
   )
   return rows
 }
+
+// ─── Products (dynamic) ────────────────────────────────────────────────────
+
+export type DbProduct = {
+  id: string
+  slug: string
+  code: string
+  name: string
+  description: string | null
+  type: 'tool' | 'video' | 'content' | 'service'
+  access_type: 'free' | 'paid' | 'whatsapp'
+  is_active: boolean
+  whatsapp_message: string | null
+  stripe_price_id: string | null
+  kiwify_url: string | null
+  features: string[]
+  order_index: number
+  created_at: string
+  updated_at: string
+}
+
+export async function getProducts(): Promise<DbProduct[]> {
+  const { rows } = await query(
+    'SELECT * FROM products WHERE is_active = true ORDER BY order_index'
+  )
+  return rows
+}
+
+export async function getAllProducts(): Promise<DbProduct[]> {
+  const { rows } = await query(
+    'SELECT * FROM products ORDER BY order_index'
+  )
+  return rows
+}
+
+export async function getProductBySlug(slug: string): Promise<DbProduct | null> {
+  const { rows } = await query(
+    'SELECT * FROM products WHERE slug = $1',
+    [slug]
+  )
+  return rows[0] ?? null
+}
+
+export async function getProductByStripePrice(priceId: string): Promise<DbProduct | null> {
+  const { rows } = await query(
+    'SELECT * FROM products WHERE stripe_price_id = $1',
+    [priceId]
+  )
+  return rows[0] ?? null
+}
+
+export async function createProduct(data: {
+  slug: string; code: string; name: string; description?: string
+  type: string; access_type: string; whatsapp_message?: string
+  stripe_price_id?: string; kiwify_url?: string; features?: string[]; order_index?: number
+}): Promise<DbProduct> {
+  const { rows } = await query(
+    `INSERT INTO products (slug, code, name, description, type, access_type, whatsapp_message, stripe_price_id, kiwify_url, features, order_index)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+    [
+      data.slug, data.code, data.name, data.description ?? null,
+      data.type, data.access_type, data.whatsapp_message ?? null,
+      data.stripe_price_id ?? null, data.kiwify_url ?? null,
+      JSON.stringify(data.features ?? []), data.order_index ?? 0,
+    ]
+  )
+  return rows[0]
+}
+
+export async function updateProduct(id: string, data: Partial<{
+  code: string; name: string; description: string; type: string
+  access_type: string; whatsapp_message: string; stripe_price_id: string
+  kiwify_url: string; features: string[]; order_index: number; is_active: boolean
+}>): Promise<DbProduct> {
+  const fields = Object.entries(data)
+    .map(([k, v], i) => `${k} = $${i + 2}`)
+    .join(', ')
+  const values = Object.values(data).map(v =>
+    Array.isArray(v) ? JSON.stringify(v) : v
+  )
+  const { rows } = await query(
+    `UPDATE products SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...values]
+  )
+  return rows[0]
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  await query('DELETE FROM products WHERE id = $1', [id])
+}

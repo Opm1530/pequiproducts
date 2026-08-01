@@ -59,7 +59,7 @@ export default function ProductForm({ product }: Props) {
           <select
             name="access_type"
             value={accessType}
-            onChange={e => setAccessType(e.target.value)}
+            onChange={e => setAccessType(e.target.value as 'free' | 'paid' | 'whatsapp')}
             className={inputClass}
             style={inputStyle}
           >

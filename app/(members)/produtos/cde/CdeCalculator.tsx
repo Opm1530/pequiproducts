@@ -58,8 +58,12 @@ function TabPreco() {
   const [impostos, setImpostos] = useState(6)
   const [margem, setMargem] = useState(30)
   const [desconto, setDesconto] = useState(10)
+  const [custoFixoMensal, setCustoFixoMensal] = useState(2000)
+  const [vendasMes, setVendasMes] = useState(100)
+  const [usarCFU, setUsarCFU] = useState(false)
 
-  const custoTotal = custo + frete + embalagem
+  const cfu = vendasMes > 0 ? custoFixoMensal / vendasMes : 0
+  const custoTotal = custo + frete + embalagem + (usarCFU ? cfu : 0)
   const deducoesRate = (taxas + impostos) / 100
   const margemRate = margem / 100
   const preco = custoTotal / (1 - deducoesRate - margemRate)
@@ -73,17 +77,62 @@ function TabPreco() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="rounded-2xl p-7 space-y-4" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <h3 className="font-black text-base" style={{ color: '#0B0501' }}>Custos do produto</h3>
-        <Input label="Custo do produto" prefix="R$" value={custo} onChange={setCusto} step={0.01} />
-        <Input label="Frete de envio" prefix="R$" value={frete} onChange={setFrete} step={0.01} />
-        <Input label="Embalagem" prefix="R$" value={embalagem} onChange={setEmbalagem} step={0.01} />
-        <div className="border-t pt-4" style={{ borderColor: '#f0f0f0' }}>
-          <h3 className="font-black text-base mb-4" style={{ color: '#0B0501' }}>Taxas e margem</h3>
-          <div className="space-y-4">
-            <Input label="Taxas (gateway/marketplace)" suffix="%" value={taxas} onChange={setTaxas} step={0.1} hint="Ex: Kiwify, Mercado Pago, Shopify" />
-            <Input label="Impostos" suffix="%" value={impostos} onChange={setImpostos} step={0.1} />
-            <Input label="Margem de lucro desejada" suffix="%" value={margem} onChange={setMargem} step={1} />
+      <div className="space-y-4">
+        <div className="rounded-2xl p-7 space-y-4" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <h3 className="font-black text-base" style={{ color: '#0B0501' }}>Custos do produto</h3>
+          <Input label="Custo do produto" prefix="R$" value={custo} onChange={setCusto} step={0.01} />
+          <Input label="Frete de envio" prefix="R$" value={frete} onChange={setFrete} step={0.01} />
+          <Input label="Embalagem" prefix="R$" value={embalagem} onChange={setEmbalagem} step={0.01} />
+          <div className="border-t pt-4" style={{ borderColor: '#f0f0f0' }}>
+            <h3 className="font-black text-base mb-4" style={{ color: '#0B0501' }}>Taxas e margem</h3>
+            <div className="space-y-4">
+              <Input label="Taxas (gateway/marketplace)" suffix="%" value={taxas} onChange={setTaxas} step={0.1} hint="Ex: Stripe, Mercado Pago, Shopify" />
+              <Input label="Impostos" suffix="%" value={impostos} onChange={setImpostos} step={0.1} />
+              <Input label="Margem de lucro desejada" suffix="%" value={margem} onChange={setMargem} step={1} />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl p-6 space-y-4" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-black text-base" style={{ color: '#0B0501' }}>Custo fixo diluído (CFU)</h3>
+              <p className="text-xs mt-0.5" style={{ color: '#9a9a9a' }}>Divide seus custos fixos entre todas as vendas</p>
+            </div>
+            <button
+              onClick={() => setUsarCFU(v => !v)}
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              style={{ backgroundColor: usarCFU ? '#FF6803' : '#e0e0e0' }}
+            >
+              <span
+                className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform"
+                style={{ transform: usarCFU ? 'translateX(22px)' : 'translateX(4px)' }}
+              />
+            </button>
+          </div>
+
+          <div className={`space-y-4 transition-opacity ${usarCFU ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+            <Input
+              label="Custos fixos mensais"
+              prefix="R$"
+              value={custoFixoMensal}
+              onChange={setCustoFixoMensal}
+              step={50}
+              hint="Plataforma, equipe, tráfego pago, pró-labore..."
+            />
+            <Input
+              label="Estimativa de vendas/mês"
+              value={vendasMes}
+              onChange={setVendasMes}
+              step={10}
+              hint="Quantos produtos você espera vender por mês"
+            />
+            {usarCFU && (
+              <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ backgroundColor: '#fff7f0', border: '1.5px solid #FF680330' }}>
+                <span className="text-sm font-semibold" style={{ color: '#0B0501' }}>CFU por produto</span>
+                <span className="font-black text-base" style={{ color: '#FF6803' }}>{fmt(cfu)}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -95,7 +144,7 @@ function TabPreco() {
           <ResultCard label="Lucro por unidade" value={fmt(lucroUnit)} />
           <ResultCard label="Margem real" value={pct(margemReal)} />
           <ResultCard label="Markup" value={`${markup.toFixed(0)}%`} />
-          <ResultCard label="Custo total/un." value={fmt(custoTotal)} />
+          <ResultCard label="Custo total/un." value={fmt(custoTotal)} sub={usarCFU ? `inclui ${fmt(cfu)} de fixo` : undefined} />
         </div>
 
         <div className="rounded-2xl p-6 space-y-3" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { getUserByEmail, createUser, grantProductAccess, getProductByStripePrice } from '@/lib/queries'
 import bcrypt from 'bcryptjs'
 
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
   let event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const session = event.data.object
   const email = session.customer_email?.toLowerCase().trim()
   const productSlug = session.metadata?.product_slug
-  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 })
+  const lineItems = await getStripe().checkout.sessions.listLineItems(session.id, { limit: 1 })
   const priceId = lineItems.data[0]?.price?.id
 
   // Resolve slug via metadata (preferred) or via price ID

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getProductBySlug } from '@/lib/queries'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 
 export async function POST(
   request: NextRequest,
@@ -19,7 +19,7 @@ export async function POST(
 
   const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? ''
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'payment',
     line_items: [{ price: product.stripe_price_id, quantity: 1 }],
     customer_email: user.email,

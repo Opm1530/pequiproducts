@@ -28,6 +28,9 @@ const FIELDS = [
   { key: 'followers', label: 'Seguidores', required: false, placeholder: 'ex: 150k' },
 ] as const
 
+const inputClass = "w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+const inputStyle = { backgroundColor: '#f5f5f5', border: '1.5px solid #e0e0e0', color: '#0B0501' }
+
 export default function BdiAdminClient({ initialInfluencers }: Props) {
   const [influencers, setInfluencers] = useState(initialInfluencers)
   const [form, setForm] = useState(EMPTY)
@@ -85,35 +88,44 @@ export default function BdiAdminClient({ initialInfluencers }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <p className="text-gray-400 text-sm">{influencers.length} influenciadoras cadastradas</p>
-        <button onClick={() => { setForm(EMPTY); setEditId(null); setShowForm(!showForm) }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-colors">
+        <p className="text-sm" style={{ color: '#9a9a9a' }}>{influencers.length} influenciadoras cadastradas</p>
+        <button
+          onClick={() => { setForm(EMPTY); setEditId(null); setShowForm(!showForm) }}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90"
+          style={{ backgroundColor: '#FF6803' }}
+        >
           <Plus size={16} />Adicionar influenciadora
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <h2 className="sm:col-span-2 text-white font-semibold">{editId ? 'Editar' : 'Nova influenciadora'}</h2>
+        <form onSubmit={handleSubmit} className="rounded-2xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+          <h2 className="sm:col-span-2 font-black text-base" style={{ color: '#0B0501' }}>
+            {editId ? 'Editar influenciadora' : 'Nova influenciadora'}
+          </h2>
           {FIELDS.map(({ key, label, required, placeholder }) => (
             <div key={key}>
-              <label className="block text-sm text-gray-300 mb-1">
-                {label}{!required && <span className="text-gray-600 ml-1">(opcional)</span>}
+              <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+                {label}{!required && <span className="ml-1" style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>}
               </label>
               <input
                 required={required}
                 value={form[key]}
                 onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
                 placeholder={placeholder}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors"
+                className={inputClass}
+                style={inputStyle}
               />
             </div>
           ))}
           <div className="sm:col-span-2 flex gap-3 justify-end">
             <button type="button" onClick={() => { setShowForm(false); setEditId(null) }}
-              className="px-4 py-2 rounded-xl text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
+              className="px-4 py-2 rounded-xl text-sm transition-colors" style={{ color: '#6b6b6b' }}>
+              Cancelar
+            </button>
             <button type="submit" disabled={saving}
-              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold transition-colors">
+              className="px-4 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: '#FF6803' }}>
               {saving ? 'Salvando...' : editId ? 'Salvar alterações' : 'Adicionar'}
             </button>
           </div>
@@ -122,24 +134,26 @@ export default function BdiAdminClient({ initialInfluencers }: Props) {
 
       <div className="space-y-2">
         {influencers.map(inf => (
-          <div key={inf.id} className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-4 py-3 hover:border-white/20 transition-colors">
+          <div key={inf.id} className="flex items-center gap-4 rounded-xl px-4 py-3 transition-all" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             {inf.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={inf.photo_url} alt={inf.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-violet-950/50 flex items-center justify-center shrink-0">
-                <span className="text-violet-400 font-bold text-sm">{inf.name[0]}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#fff7f0' }}>
+                <span className="font-black text-sm" style={{ color: '#FF6803' }}>{inf.name[0]}</span>
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm">{inf.name}</p>
-              <p className="text-violet-400 text-xs">{inf.niche}{inf.followers ? ` · ${inf.followers}` : ''}</p>
+              <p className="font-semibold text-sm" style={{ color: '#0B0501' }}>{inf.name}</p>
+              <p className="text-xs" style={{ color: '#FF6803' }}>{inf.niche}{inf.followers ? ` · ${inf.followers}` : ''}</p>
             </div>
             <div className="flex gap-1">
-              <button onClick={() => handleEdit(inf)} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+              <button onClick={() => handleEdit(inf)}
+                className="p-2 rounded-lg transition-colors hover:bg-gray-100" style={{ color: '#6b6b6b' }}>
                 <Pencil size={14} />
               </button>
-              <button onClick={() => handleDelete(inf.id)} className="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+              <button onClick={() => handleDelete(inf.id)}
+                className="p-2 rounded-lg transition-colors hover:bg-red-50" style={{ color: '#6b6b6b' }}>
                 <Trash2 size={14} />
               </button>
             </div>

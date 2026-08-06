@@ -17,6 +17,9 @@ type Props = { initialCreatives: Creative[] }
 
 const EMPTY = { title: '', description: '', niche: '', type: 'image' as 'image' | 'video', url: '', thumbnail_url: '' }
 
+const inputClass = "w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
+const inputStyle = { backgroundColor: '#f5f5f5', border: '1.5px solid #e0e0e0', color: '#0B0501' }
+
 export default function BdaqvAdminClient({ initialCreatives }: Props) {
   const [creatives, setCreatives] = useState(initialCreatives)
   const [form, setForm] = useState(EMPTY)
@@ -53,55 +56,66 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <p className="text-gray-400 text-sm">{creatives.length} criativos cadastrados</p>
-        <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-colors">
+        <p className="text-sm" style={{ color: '#9a9a9a' }}>{creatives.length} criativos cadastrados</p>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90"
+          style={{ backgroundColor: '#FF6803' }}
+        >
           <Plus size={16} />Adicionar criativo
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form onSubmit={handleAdd} className="rounded-2xl p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-300 mb-1">Título</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>Título</label>
             <input required value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" />
+              className={inputClass} style={inputStyle} />
           </div>
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Nicho</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>Nicho</label>
             <input required value={form.niche} onChange={e => setForm(p => ({ ...p, niche: e.target.value }))}
               placeholder="ex: moda, beleza, fitness"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" />
+              className={inputClass} style={inputStyle} />
           </div>
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Tipo</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>Tipo</label>
             <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value as 'image' | 'video' }))}
-              className="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors">
+              className={inputClass} style={inputStyle}>
               <option value="image">Imagem</option>
               <option value="video">Vídeo</option>
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-300 mb-1">URL do arquivo</label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>URL do arquivo</label>
             <input required value={form.url} onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
               placeholder="https://..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" />
+              className={inputClass} style={inputStyle} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-300 mb-1">URL da thumbnail <span className="text-gray-600">(opcional)</span></label>
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+              URL da thumbnail <span style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>
+            </label>
             <input value={form.thumbnail_url} onChange={e => setForm(p => ({ ...p, thumbnail_url: e.target.value }))}
               placeholder="https://..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors" />
+              className={inputClass} style={inputStyle} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-300 mb-1">Descrição <span className="text-gray-600">(opcional)</span></label>
-            <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-              rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 transition-colors resize-none" />
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+              Descrição <span style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>
+            </label>
+            <textarea value={form.description ?? ''} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+              rows={2} className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
           </div>
           <div className="sm:col-span-2 flex gap-3 justify-end">
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white text-sm transition-colors">Cancelar</button>
+            <button type="button" onClick={() => setShowForm(false)}
+              className="px-4 py-2 rounded-xl text-sm transition-colors" style={{ color: '#6b6b6b' }}>
+              Cancelar
+            </button>
             <button type="submit" disabled={saving}
-              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold transition-colors">
+              className="px-4 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: '#FF6803' }}>
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
@@ -110,23 +124,25 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {creatives.map(c => (
-          <div key={c.id} className="relative group rounded-xl overflow-hidden bg-white/5 border border-white/10 aspect-square">
+          <div key={c.id} className="relative group rounded-xl overflow-hidden aspect-square" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             {c.thumbnail_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-violet-950/30">
-                {c.type === 'video' ? <Play size={28} className="text-violet-400" /> : <ImageIcon size={28} className="text-violet-400" />}
+              <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#fff7f0' }}>
+                {c.type === 'video'
+                  ? <Play size={28} style={{ color: '#FF6803' }} />
+                  : <ImageIcon size={28} style={{ color: '#FF6803' }} />}
               </div>
             )}
-            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3" style={{ backgroundColor: 'rgba(11,5,1,0.8)' }}>
               <button onClick={() => handleDelete(c.id)}
-                className="self-end p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition-colors">
+                className="self-end p-1.5 rounded-lg text-white transition-colors" style={{ backgroundColor: '#ef4444' }}>
                 <Trash2 size={14} />
               </button>
               <div>
                 <p className="text-white text-xs font-semibold line-clamp-2">{c.title}</p>
-                <span className="text-violet-300 text-xs">{c.niche}</span>
+                <span className="text-xs" style={{ color: '#FF6803' }}>{c.niche}</span>
               </div>
             </div>
           </div>

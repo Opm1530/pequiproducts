@@ -15,18 +15,23 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-8">Visão Geral</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+      <div className="mb-8">
+        <span className="font-mono text-xs tracking-widest block mb-1" style={{ color: '#BFBFBF' }}>PAINEL</span>
+        <h1 className="font-black text-3xl" style={{ color: '#0B0501' }}>Visão Geral</h1>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
         {stats.map(({ label, value }) => (
-          <div key={label} className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm">{label}</p>
-            <p className="text-3xl font-bold text-white mt-1">{value}</p>
+          <div key={label} className="rounded-2xl p-6" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <p className="text-sm" style={{ color: '#9a9a9a' }}>{label}</p>
+            <p className="text-3xl font-black mt-1" style={{ color: '#FF6803' }}>{value}</p>
           </div>
         ))}
       </div>
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-        <h2 className="text-white font-semibold mb-2">Acesso rápido</h2>
-        <p className="text-gray-400 text-sm">Use o menu lateral para gerenciar o conteúdo de cada produto.</p>
+
+      <div className="rounded-2xl p-6" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <h2 className="font-black text-base mb-1" style={{ color: '#0B0501' }}>Acesso rápido</h2>
+        <p className="text-sm" style={{ color: '#9a9a9a' }}>Use o menu lateral para gerenciar o conteúdo de cada produto.</p>
       </div>
     </div>
   )

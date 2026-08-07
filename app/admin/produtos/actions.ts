@@ -26,8 +26,7 @@ export async function saveProduct(formData: FormData) {
     type: formData.get('type') as string,
     access_type: formData.get('access_type') as string,
     whatsapp_message: formData.get('whatsapp_message') as string || undefined,
-    stripe_price_id: formData.get('stripe_price_id') as string || undefined,
-    kiwify_url: formData.get('kiwify_url') as string || undefined,
+    price: parseFloat(formData.get('price') as string) || undefined,
     features,
     order_index: parseInt(formData.get('order_index') as string) || 0,
   }

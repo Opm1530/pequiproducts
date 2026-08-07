@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, Trash2, Play, Image as ImageIcon } from 'lucide-react'
+import R2Upload from '@/components/R2Upload'
 
 type Creative = {
   id: string
@@ -88,18 +89,22 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>URL do arquivo</label>
-            <input required value={form.url} onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
-              placeholder="https://..."
-              className={inputClass} style={inputStyle} />
+            <R2Upload
+              folder="bdaqv"
+              accept={form.type === 'video' ? 'video/*' : 'image/*'}
+              value={form.url}
+              onChange={url => setForm(p => ({ ...p, url }))}
+              label="Arquivo"
+            />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
-              URL da thumbnail <span style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>
-            </label>
-            <input value={form.thumbnail_url} onChange={e => setForm(p => ({ ...p, thumbnail_url: e.target.value }))}
-              placeholder="https://..."
-              className={inputClass} style={inputStyle} />
+            <R2Upload
+              folder="bdaqv/thumbs"
+              accept="image/*"
+              value={form.thumbnail_url}
+              onChange={url => setForm(p => ({ ...p, thumbnail_url: url }))}
+              label="Thumbnail (opcional)"
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>

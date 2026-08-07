@@ -65,9 +65,9 @@ export default async function AdminProdutosPage() {
                 )}
               </div>
               <p className="font-black text-base mt-1" style={{ color: '#0B0501' }}>{p.name}</p>
-              {p.stripe_price_id && (
+              {p.price && (
                 <p className="text-xs mt-0.5 font-mono" style={{ color: '#9a9a9a' }}>
-                  Stripe: {p.stripe_price_id}
+                  R$ {p.price.toFixed(2)}
                 </p>
               )}
             </div>

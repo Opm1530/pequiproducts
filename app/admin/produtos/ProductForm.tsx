@@ -72,12 +72,10 @@ export default function ProductForm({ product }: Props) {
 
       {accessType === 'paid' && (
         <div className="rounded-2xl p-5 space-y-4" style={{ backgroundColor: '#fff8f5', border: '1.5px solid #FF680330' }}>
-          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF6803' }}>Configuração Stripe</p>
-          <Field label="Price ID do Stripe" hint="Começa com price_...">
-            <input name="stripe_price_id" defaultValue={product?.stripe_price_id ?? ''} className={inputClass} style={inputStyle} placeholder="price_xxxxxxxxxxxxx" />
-          </Field>
-          <Field label="URL Kiwify (opcional, legado)">
-            <input name="kiwify_url" defaultValue={product?.kiwify_url ?? ''} className={inputClass} style={inputStyle} />
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#FF6803' }}>Configuração Mercado Pago</p>
+          <Field label="Preço (R$)" hint="Valor que será cobrado via Mercado Pago">
+            <input name="price" type="number" step="0.01" min="0"
+              defaultValue={product?.price ?? ''} className={inputClass} style={inputStyle} placeholder="97.00" />
           </Field>
         </div>
       )}
@@ -93,10 +91,7 @@ export default function ProductForm({ product }: Props) {
         <input type="hidden" name="whatsapp_message" value="" />
       )}
       {accessType !== 'paid' && (
-        <>
-          <input type="hidden" name="stripe_price_id" value="" />
-          <input type="hidden" name="kiwify_url" value="" />
-        </>
+        <input type="hidden" name="price" value="" />
       )}
 
       <Field label="Features / Itens inclusos" hint="Uma por linha">

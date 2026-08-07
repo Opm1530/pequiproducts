@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { getProductBySlug } from '@/lib/queries'
-import { getStripe } from '@/lib/stripe'
+import { getPreference } from '@/lib/mp'
 
 export async function POST(
   request: NextRequest,
@@ -13,20 +13,32 @@ export async function POST(
   const { slug } = await params
   const product = await getProductBySlug(slug)
 
-  if (!product || product.access_type !== 'paid' || !product.stripe_price_id) {
+  if (!product || product.access_type !== 'paid' || !product.price) {
     return NextResponse.json({ error: 'Produto inválido ou sem preço configurado' }, { status: 400 })
   }
 
-  const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? ''
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? ''
 
-  const session = await getStripe().checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{ price: product.stripe_price_id, quantity: 1 }],
-    customer_email: user.email,
-    metadata: { user_id: user.id, product_slug: slug },
-    success_url: `${origin}/dashboard?success=1`,
-    cancel_url: `${origin}/loja`,
+  const preference = await getPreference().create({
+    body: {
+      items: [{
+        id: product.slug,
+        title: product.name,
+        quantity: 1,
+        unit_price: product.price,
+        currency_id: 'BRL',
+      }],
+      payer: { email: user.email },
+      metadata: { user_id: user.id, product_slug: slug },
+      back_urls: {
+        success: `${base}/dashboard?success=1`,
+        failure: `${base}/loja`,
+        pending: `${base}/dashboard?pending=1`,
+      },
+      auto_return: 'approved',
+      notification_url: `${base}/api/webhooks/mercadopago`,
+    },
   })
 
-  return NextResponse.json({ url: session.url })
+  return NextResponse.json({ url: preference.init_point })
 }

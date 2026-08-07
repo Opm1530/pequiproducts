@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, Trash2, Pencil } from 'lucide-react'
+import R2Upload from '@/components/R2Upload'
 
 type Influencer = {
   id: string
@@ -105,17 +106,29 @@ export default function BdiAdminClient({ initialInfluencers }: Props) {
           </h2>
           {FIELDS.map(({ key, label, required, placeholder }) => (
             <div key={key}>
-              <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
-                {label}{!required && <span className="ml-1" style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>}
-              </label>
-              <input
-                required={required}
-                value={form[key]}
-                onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                placeholder={placeholder}
-                className={inputClass}
-                style={inputStyle}
-              />
+              {key === 'photo_url' ? (
+                <R2Upload
+                  folder="bdi"
+                  accept="image/*"
+                  value={form[key]}
+                  onChange={url => setForm(p => ({ ...p, photo_url: url }))}
+                  label={`${label} (opcional)`}
+                />
+              ) : (
+                <>
+                  <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+                    {label}{!required && <span className="ml-1" style={{ color: '#9a9a9a', fontWeight: 400 }}>(opcional)</span>}
+                  </label>
+                  <input
+                    required={required}
+                    value={form[key]}
+                    onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                    placeholder={placeholder}
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                </>
+              )}
             </div>
           ))}
           <div className="sm:col-span-2 flex gap-3 justify-end">

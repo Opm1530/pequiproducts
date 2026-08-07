@@ -64,6 +64,15 @@ function ProductCard({ product, owned, whatsappNumber }: { product: DbProduct; o
           </ul>
         )}
 
+        {product.access_type === 'paid' && product.price && !owned && (
+          <div className="flex items-baseline gap-1">
+            <span className="font-black text-2xl" style={{ color: '#0B0501' }}>
+              {parseFloat(String(product.price)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+            <span className="text-xs" style={{ color: '#9a9a9a' }}>à vista</span>
+          </div>
+        )}
+
         <div className="mt-2">
           {owned || product.access_type === 'free' ? (
             <a

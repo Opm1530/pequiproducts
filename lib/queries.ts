@@ -86,7 +86,7 @@ export type DbProduct = {
   is_active: boolean
   whatsapp_message: string | null
   mp_preference_id: string | null
-  price: number | null
+  price: number | string | null
   kiwify_url: string | null
   features: string[]
   order_index: number

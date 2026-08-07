@@ -67,7 +67,7 @@ export default async function AdminProdutosPage() {
               <p className="font-black text-base mt-1" style={{ color: '#0B0501' }}>{p.name}</p>
               {p.price && (
                 <p className="text-xs mt-0.5 font-mono" style={{ color: '#9a9a9a' }}>
-                  R$ {p.price.toFixed(2)}
+                  R$ {parseFloat(String(p.price)).toFixed(2)}
                 </p>
               )}
             </div>

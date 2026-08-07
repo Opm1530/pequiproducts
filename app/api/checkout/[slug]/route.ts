@@ -25,7 +25,7 @@ export async function POST(
         id: product.slug,
         title: product.name,
         quantity: 1,
-        unit_price: product.price,
+        unit_price: parseFloat(String(product.price)),
         currency_id: 'BRL',
       }],
       payer: { email: user.email },

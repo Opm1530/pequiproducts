@@ -13,6 +13,9 @@ function getClient(): S3Client {
       region: 'auto',
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
       credentials: { accessKeyId, secretAccessKey },
+      // Disable automatic checksum — R2 rejects the CRC32 headers in presigned URLs
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     })
   }
   return _client

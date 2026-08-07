@@ -3,6 +3,8 @@ import { getSession } from '@/lib/auth'
 import { getUserProducts, getProducts } from '@/lib/queries'
 import Link from 'next/link'
 import { ShoppingBag, ExternalLink, CheckCircle2 } from 'lucide-react'
+import { Suspense } from 'react'
+import PaymentSuccess from './PaymentSuccess'
 
 export default async function DashboardPage() {
   const user = await getSession()
@@ -17,6 +19,9 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      <Suspense>
+        <PaymentSuccess initialSlugs={ownedSlugs} />
+      </Suspense>
       <div className="mb-8">
         <span className="font-mono text-xs tracking-widest block mb-1" style={{ color: '#BFBFBF' }}>ÁREA DE MEMBROS</span>
         <h1 className="font-black text-3xl" style={{ color: '#0B0501' }}>Meus Produtos</h1>

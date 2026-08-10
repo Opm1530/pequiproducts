@@ -11,7 +11,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const product = await getProductBySlug(slug)
   if (!product || product.type !== 'course') notFound()
 
-  const access = user.role === 'admin' || await hasProductAccess(user.id, slug)
+  const access = user.role === 'admin' || product.access_type === 'free' || await hasProductAccess(user.id, slug)
   if (!access) redirect('/dashboard')
 
   const modules = await getCourseModules(slug)

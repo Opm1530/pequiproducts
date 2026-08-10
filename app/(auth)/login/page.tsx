@@ -83,6 +83,14 @@ export default function LoginPage() {
             {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
           </button>
 
+          {mode === 'login' && (
+            <p className="text-center text-sm">
+              <Link href="/esqueci-senha" className="font-semibold" style={{ color: '#9a9a9a' }}>
+                Esqueceu sua senha?
+              </Link>
+            </p>
+          )}
+
           <p className="text-center text-sm" style={{ color: '#6b6b6b' }}>
             {mode === 'login' ? 'Ainda não tem conta?' : 'Já tem conta?'}{' '}
             <button

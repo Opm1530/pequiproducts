@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import Link from 'next/link'
-import { LayoutDashboard, Image, Users, Package, ArrowLeft } from 'lucide-react'
+import { LayoutDashboard, Image, Users, Package, ArrowLeft, BookOpen } from 'lucide-react'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getSession()
@@ -12,6 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: '/admin/dashboard', label: 'Visão geral', icon: LayoutDashboard },
     { href: '/admin/produtos', label: 'Produtos', icon: Package },
     { href: '/admin/bdaqv', label: 'BDAQV - Criativos', icon: Image },
+    { href: '/admin/cursos', label: 'Cursos', icon: BookOpen },
     { href: '/admin/bdi', label: 'BDI - Influenciadoras', icon: Users },
   ]
 

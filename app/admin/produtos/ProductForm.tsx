@@ -50,7 +50,8 @@ export default function ProductForm({ product }: Props) {
         <Field label="Tipo de produto">
           <select name="type" defaultValue={product?.type ?? 'content'} className={inputClass} style={inputStyle}>
             <option value="tool">Ferramenta</option>
-            <option value="video">Vídeo / Curso</option>
+            <option value="course">Curso</option>
+            <option value="video">Vídeo</option>
             <option value="content">Conteúdo</option>
             <option value="service">Serviço</option>
           </select>

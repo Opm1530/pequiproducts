@@ -11,6 +11,9 @@ type Creative = {
   type: 'video' | 'image'
   url: string
   thumbnail_url: string | null
+  creative_type_label: string | null
+  attention_points: string | null
+  how_to_replicate: string | null
 }
 
 type Props = { creatives: Creative[]; niches: string[] }
@@ -128,13 +131,31 @@ export default function BdaqvClient({ creatives, niches }: Props) {
                 </button>
               </div>
             </div>
-            <div className="p-5">
+            <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               {preview.type === 'video'
-                ? <video src={preview.url} controls className="w-full rounded-xl max-h-96" />
+                ? <video src={preview.url} controls className="w-full rounded-xl max-h-72" />
                 // eslint-disable-next-line @next/next/no-img-element
-                : <img src={preview.url} alt={preview.title} className="w-full rounded-xl max-h-96 object-contain" />}
+                : <img src={preview.url} alt={preview.title} className="w-full rounded-xl max-h-72 object-contain" />}
               {preview.description && (
-                <p className="text-sm mt-4" style={{ color: '#6b6b6b' }}>{preview.description}</p>
+                <p className="text-sm" style={{ color: '#6b6b6b' }}>{preview.description}</p>
+              )}
+              {preview.creative_type_label && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#fff7f0' }}>
+                  <p className="text-xs font-black uppercase mb-1" style={{ color: '#FF6803' }}>Tipo</p>
+                  <p className="text-sm" style={{ color: '#0B0501' }}>{preview.creative_type_label}</p>
+                </div>
+              )}
+              {preview.attention_points && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#f9f9f9' }}>
+                  <p className="text-xs font-black uppercase mb-2" style={{ color: '#0B0501' }}>Pontos de Atenção</p>
+                  <p className="text-sm whitespace-pre-wrap" style={{ color: '#4a4a4a' }}>{preview.attention_points}</p>
+                </div>
+              )}
+              {preview.how_to_replicate && (
+                <div className="rounded-xl p-4" style={{ backgroundColor: '#f9f9f9' }}>
+                  <p className="text-xs font-black uppercase mb-2" style={{ color: '#0B0501' }}>Como Replicar</p>
+                  <p className="text-sm whitespace-pre-wrap" style={{ color: '#4a4a4a' }}>{preview.how_to_replicate}</p>
+                </div>
               )}
             </div>
           </div>

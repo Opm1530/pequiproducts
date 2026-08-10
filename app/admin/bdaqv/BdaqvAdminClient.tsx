@@ -12,11 +12,14 @@ type Creative = {
   type: 'video' | 'image'
   url: string
   thumbnail_url: string | null
+  creative_type_label: string | null
+  attention_points: string | null
+  how_to_replicate: string | null
 }
 
 type Props = { initialCreatives: Creative[] }
 
-const EMPTY = { title: '', description: '', niche: '', type: 'image' as 'image' | 'video', url: '', thumbnail_url: '' }
+const EMPTY = { title: '', description: '', niche: '', type: 'image' as 'image' | 'video', url: '', thumbnail_url: '', creative_type_label: '', attention_points: '', how_to_replicate: '' }
 
 const inputClass = "w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all"
 const inputStyle = { backgroundColor: '#f5f5f5', border: '1.5px solid #e0e0e0', color: '#0B0501' }
@@ -112,6 +115,27 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
             </label>
             <textarea value={form.description ?? ''} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
               rows={2} className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+              Tipo do criativo <span style={{ color: '#9a9a9a', fontWeight: 400 }}>(ex: Vídeo conceitual, UGC)</span>
+            </label>
+            <input value={form.creative_type_label} onChange={e => setForm(p => ({ ...p, creative_type_label: e.target.value }))}
+              placeholder="ex: Vídeo conceitual" className={inputClass} style={inputStyle} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+              Pontos de atenção
+            </label>
+            <textarea value={form.attention_points ?? ''} onChange={e => setForm(p => ({ ...p, attention_points: e.target.value }))}
+              rows={3} placeholder="Descreva os pontos de atenção deste criativo..." className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold mb-1" style={{ color: '#0B0501' }}>
+              Como replicar
+            </label>
+            <textarea value={form.how_to_replicate ?? ''} onChange={e => setForm(p => ({ ...p, how_to_replicate: e.target.value }))}
+              rows={4} placeholder="Explique como replicar este criativo..." className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
           </div>
           <div className="sm:col-span-2 flex gap-3 justify-end">
             <button type="button" onClick={() => setShowForm(false)}

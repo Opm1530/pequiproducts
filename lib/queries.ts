@@ -73,6 +73,125 @@ export async function getInfluencers() {
   return rows
 }
 
+// ─── Courses ───────────────────────────────────────────────────────────────
+
+export type CourseModule = {
+  id: string; product_slug: string; title: string; order_index: number
+  lessons: CourseLesson[]
+}
+export type CourseLesson = {
+  id: string; module_id: string; title: string; video_url: string | null
+  duration_minutes: number | null; description: string | null; order_index: number
+}
+export type LessonComment = {
+  id: string; lesson_id: string; user_id: string; content: string
+  created_at: string; user_email: string
+}
+
+export async function getCourseModules(slug: string): Promise<CourseModule[]> {
+  const { rows: modules } = await query(
+    'SELECT * FROM course_modules WHERE product_slug = $1 ORDER BY order_index', [slug]
+  )
+  const { rows: lessons } = await query(
+    `SELECT l.* FROM course_lessons l
+     JOIN course_modules m ON l.module_id = m.id
+     WHERE m.product_slug = $1 ORDER BY l.order_index`, [slug]
+  )
+  return modules.map((m: CourseModule) => ({
+    ...m,
+    lessons: lessons.filter((l: CourseLesson) => l.module_id === m.id),
+  }))
+}
+
+export async function getLessonComments(lessonId: string): Promise<LessonComment[]> {
+  const { rows } = await query(
+    `SELECT c.*, u.email as user_email FROM lesson_comments c
+     JOIN users u ON c.user_id = u.id
+     WHERE c.lesson_id = $1 ORDER BY c.created_at`, [lessonId]
+  )
+  return rows
+}
+
+export async function addLessonComment(lessonId: string, userId: string, content: string) {
+  const { rows } = await query(
+    `INSERT INTO lesson_comments (lesson_id, user_id, content)
+     VALUES ($1, $2, $3) RETURNING *`, [lessonId, userId, content]
+  )
+  return rows[0]
+}
+
+export async function getLessonProgress(userId: string, slug: string): Promise<string[]> {
+  const { rows } = await query(
+    `SELECT lp.lesson_id FROM lesson_progress lp
+     JOIN course_lessons l ON lp.lesson_id = l.id
+     JOIN course_modules m ON l.module_id = m.id
+     WHERE lp.user_id = $1 AND m.product_slug = $2`, [userId, slug]
+  )
+  return rows.map(r => r.lesson_id)
+}
+
+export async function toggleLessonComplete(userId: string, lessonId: string): Promise<boolean> {
+  const { rows } = await query(
+    'SELECT id FROM lesson_progress WHERE user_id = $1 AND lesson_id = $2',
+    [userId, lessonId]
+  )
+  if (rows.length > 0) {
+    await query('DELETE FROM lesson_progress WHERE user_id = $1 AND lesson_id = $2', [userId, lessonId])
+    return false
+  } else {
+    await query('INSERT INTO lesson_progress (user_id, lesson_id) VALUES ($1, $2)', [userId, lessonId])
+    return true
+  }
+}
+
+export async function createModule(slug: string, title: string, orderIndex: number) {
+  const { rows } = await query(
+    'INSERT INTO course_modules (product_slug, title, order_index) VALUES ($1,$2,$3) RETURNING *',
+    [slug, title, orderIndex]
+  )
+  return rows[0]
+}
+
+export async function updateModule(id: string, data: { title?: string; order_index?: number }) {
+  const fields = Object.entries(data).map(([k], i) => `${k} = $${i + 2}`).join(', ')
+  const { rows } = await query(
+    `UPDATE course_modules SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...Object.values(data)]
+  )
+  return rows[0]
+}
+
+export async function deleteModule(id: string) {
+  await query('DELETE FROM course_modules WHERE id = $1', [id])
+}
+
+export async function createLesson(moduleId: string, data: {
+  title: string; video_url?: string; duration_minutes?: number
+  description?: string; order_index: number
+}) {
+  const { rows } = await query(
+    `INSERT INTO course_lessons (module_id, title, video_url, duration_minutes, description, order_index)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+    [moduleId, data.title, data.video_url ?? null, data.duration_minutes ?? null, data.description ?? null, data.order_index]
+  )
+  return rows[0]
+}
+
+export async function updateLesson(id: string, data: Partial<{
+  title: string; video_url: string; duration_minutes: number; description: string; order_index: number
+}>) {
+  const fields = Object.entries(data).map(([k], i) => `${k} = $${i + 2}`).join(', ')
+  const { rows } = await query(
+    `UPDATE course_lessons SET ${fields} WHERE id = $1 RETURNING *`,
+    [id, ...Object.values(data)]
+  )
+  return rows[0]
+}
+
+export async function deleteLesson(id: string) {
+  await query('DELETE FROM course_lessons WHERE id = $1', [id])
+}
+
 // ─── Products (dynamic) ────────────────────────────────────────────────────
 
 export type DbProduct = {
@@ -81,7 +200,7 @@ export type DbProduct = {
   code: string
   name: string
   description: string | null
-  type: 'tool' | 'video' | 'content' | 'service'
+  type: 'tool' | 'video' | 'content' | 'service' | 'course'
   access_type: 'free' | 'paid' | 'whatsapp'
   is_active: boolean
   whatsapp_message: string | null

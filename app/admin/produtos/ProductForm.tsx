@@ -2,7 +2,7 @@
 
 import { DbProduct } from '@/lib/queries'
 import { saveProduct, removeProduct } from './actions'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Trash2 } from 'lucide-react'
 
 type Props = { product?: DbProduct }
@@ -22,7 +22,15 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 
 export default function ProductForm({ product }: Props) {
   const [accessType, setAccessType] = useState(product?.access_type ?? 'paid')
+  const [, startDelete] = useTransition()
   const isEdit = !!product
+
+  function handleDelete() {
+    if (!confirm('Tem certeza? Isso não pode ser desfeito.')) return
+    const fd = new FormData()
+    fd.set('id', product!.id)
+    startDelete(() => removeProduct(fd))
+  }
 
   return (
     <form action={saveProduct} className="space-y-5">
@@ -120,18 +128,15 @@ export default function ProductForm({ product }: Props) {
         </button>
 
         {isEdit && (
-          <form action={removeProduct}>
-            <input type="hidden" name="id" value={product.id} />
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-70"
-              style={{ backgroundColor: '#fff0f0', color: '#ef4444' }}
-              onClick={e => { if (!confirm('Tem certeza? Isso não pode ser desfeito.')) e.preventDefault() }}
-            >
-              <Trash2 size={14} />
-              Excluir produto
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-70"
+            style={{ backgroundColor: '#fff0f0', color: '#ef4444' }}
+          >
+            <Trash2 size={14} />
+            Excluir produto
+          </button>
         )}
       </div>
     </form>

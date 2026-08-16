@@ -14,9 +14,9 @@ export default async function BdiPage() {
   return (
     <div>
       <div className="mb-8">
-        <span className="text-xs font-bold text-violet-400 tracking-widest uppercase">BDI</span>
-        <h1 className="text-2xl font-bold text-white mt-1">Lista de Influenciadores</h1>
-        <p className="text-gray-400 text-sm mt-1">Influenciadoras segmentadas por nicho com links diretos</p>
+        <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>BDI</span>
+        <h1 className="text-2xl font-bold mt-1" style={{ color: '#0B0501' }}>Lista de Influenciadores</h1>
+        <p className="text-sm mt-1" style={{ color: '#9a9a9a' }}>Influenciadoras segmentadas por nicho com links diretos</p>
       </div>
       <BdiClient influencers={influencers} niches={niches} />
     </div>

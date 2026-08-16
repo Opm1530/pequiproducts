@@ -14,9 +14,9 @@ export default async function BdaqvPage() {
   return (
     <div>
       <div className="mb-8">
-        <span className="text-xs font-bold text-violet-400 tracking-widest uppercase">BDAQV</span>
-        <h1 className="text-2xl font-bold text-white mt-1">Banco de Criativos que Vendem</h1>
-        <p className="text-gray-400 text-sm mt-1">Criativos segmentados por nicho prontos para usar</p>
+        <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>BDAQV</span>
+        <h1 className="text-2xl font-bold mt-1" style={{ color: '#0B0501' }}>Banco de Criativos que Vendem</h1>
+        <p className="text-sm mt-1" style={{ color: '#9a9a9a' }}>Criativos segmentados por nicho prontos para usar</p>
       </div>
       <BdaqvClient creatives={creatives} niches={niches} />
     </div>

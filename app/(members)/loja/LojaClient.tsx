@@ -12,9 +12,17 @@ type Props = {
 
 function ProductCard({ product, owned, whatsappNumber }: { product: DbProduct; owned: boolean; whatsappNumber: string }) {
   const [loading, setLoading] = useState(false)
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(product.whatsapp_message ?? '')}`
+
+  // WhatsApp URL: prefer product-level whatsapp_url, fall back to global number + message
+  const whatsappUrl = product.whatsapp_url ||
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(product.whatsapp_message ?? '')}`
 
   async function handleBuy() {
+    // If product has a dedicated landing page, send there
+    if (product.landing_page_url) {
+      window.location.href = product.landing_page_url
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch(`/api/checkout/${product.slug}`, { method: 'POST' })
@@ -90,8 +98,8 @@ function ProductCard({ product, owned, whatsappNumber }: { product: DbProduct; o
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-50"
               style={{ backgroundColor: '#FF6803' }}
             >
-              <ShoppingCart size={14} />
-              {loading ? 'Aguarde...' : 'Comprar'}
+              {!product.landing_page_url && <ShoppingCart size={14} />}
+              {loading ? 'Aguarde...' : product.landing_page_url ? 'Ver oferta' : 'Comprar'}
             </button>
           ) : (
             <a

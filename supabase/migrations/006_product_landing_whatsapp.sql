@@ -1,0 +1,2 @@
+ALTER TABLE products ADD COLUMN IF NOT EXISTS landing_page_url TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS whatsapp_url TEXT;

@@ -207,6 +207,8 @@ export type DbProduct = {
   mp_preference_id: string | null
   price: number | string | null
   kiwify_url: string | null
+  landing_page_url: string | null
+  whatsapp_url: string | null
   features: string[]
   order_index: number
   created_at: string
@@ -246,14 +248,16 @@ export async function getProductByMpPreference(prefId: string): Promise<DbProduc
 export async function createProduct(data: {
   slug: string; code: string; name: string; description?: string
   type: string; access_type: string; whatsapp_message?: string
+  whatsapp_url?: string; landing_page_url?: string
   price?: number; kiwify_url?: string; features?: string[]; order_index?: number
 }): Promise<DbProduct> {
   const { rows } = await query(
-    `INSERT INTO products (slug, code, name, description, type, access_type, whatsapp_message, price, kiwify_url, features, order_index)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+    `INSERT INTO products (slug, code, name, description, type, access_type, whatsapp_message, whatsapp_url, landing_page_url, price, kiwify_url, features, order_index)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
     [
       data.slug, data.code, data.name, data.description ?? null,
       data.type, data.access_type, data.whatsapp_message ?? null,
+      data.whatsapp_url ?? null, data.landing_page_url ?? null,
       data.price ?? null, data.kiwify_url ?? null,
       JSON.stringify(data.features ?? []), data.order_index ?? 0,
     ]
@@ -263,7 +267,8 @@ export async function createProduct(data: {
 
 export async function updateProduct(id: string, data: Partial<{
   code: string; name: string; description: string; type: string
-  access_type: string; whatsapp_message: string; price: number
+  access_type: string; whatsapp_message: string; whatsapp_url: string
+  landing_page_url: string; price: number
   kiwify_url: string; features: string[]; order_index: number; is_active: boolean
 }>): Promise<DbProduct> {
   const fields = Object.entries(data)

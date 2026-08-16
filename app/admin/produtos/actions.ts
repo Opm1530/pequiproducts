@@ -26,6 +26,8 @@ export async function saveProduct(formData: FormData) {
     type: formData.get('type') as string,
     access_type: formData.get('access_type') as string,
     whatsapp_message: formData.get('whatsapp_message') as string || undefined,
+    whatsapp_url: formData.get('whatsapp_url') as string || undefined,
+    landing_page_url: formData.get('landing_page_url') as string || undefined,
     price: parseFloat(formData.get('price') as string) || undefined,
     features,
     order_index: parseInt(formData.get('order_index') as string) || 0,

@@ -90,18 +90,33 @@ export default function ProductForm({ product }: Props) {
       )}
 
       {accessType === 'whatsapp' && (
-        <Field label="Mensagem WhatsApp" hint="Texto pré-preenchido ao clicar no botão">
-          <textarea name="whatsapp_message" defaultValue={product?.whatsapp_message ?? ''} rows={2}
-            className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
-        </Field>
+        <div className="rounded-2xl p-5 space-y-4" style={{ backgroundColor: '#f0fff4', border: '1.5px solid #22c55e30' }}>
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#16a34a' }}>Configuração WhatsApp</p>
+          <Field label="Link do WhatsApp" hint="Ex: https://wa.me/5511999999999?text=Ol%C3%A1">
+            <input name="whatsapp_url" defaultValue={product?.whatsapp_url ?? ''}
+              placeholder="https://wa.me/55..." className={inputClass} style={inputStyle} />
+          </Field>
+          <Field label="Mensagem pré-preenchida" hint="Texto que aparece no WhatsApp ao clicar (opcional se já está na URL)">
+            <textarea name="whatsapp_message" defaultValue={product?.whatsapp_message ?? ''} rows={2}
+              className={inputClass} style={{ ...inputStyle, resize: 'vertical' }} />
+          </Field>
+        </div>
       )}
 
       {accessType !== 'whatsapp' && (
         <input type="hidden" name="whatsapp_message" value="" />
       )}
+      {accessType !== 'whatsapp' && (
+        <input type="hidden" name="whatsapp_url" value="" />
+      )}
       {accessType !== 'paid' && (
         <input type="hidden" name="price" value="" />
       )}
+
+      <Field label="Landing page" hint="URL para redirecionar ao comprar (ex: /aqv). Deixe vazio para usar o checkout padrão.">
+        <input name="landing_page_url" defaultValue={product?.landing_page_url ?? ''}
+          placeholder="/aqv ou https://..." className={inputClass} style={inputStyle} />
+      </Field>
 
       <Field label="Features / Itens inclusos" hint="Uma por linha">
         <textarea

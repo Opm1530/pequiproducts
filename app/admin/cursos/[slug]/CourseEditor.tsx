@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X, GripVertical } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X, GripVertical, Upload } from 'lucide-react'
 import { CourseModule, CourseLesson } from '@/lib/queries'
 
 type Props = { slug: string; initialModules: CourseModule[] }
@@ -9,6 +9,92 @@ type Props = { slug: string; initialModules: CourseModule[] }
 const inp = "w-full rounded-xl px-4 py-2.5 text-sm outline-none"
 const inpStyle = { backgroundColor: '#f5f5f5', border: '1.5px solid #e0e0e0', color: '#0B0501' }
 const ta = "w-full rounded-xl px-4 py-2.5 text-sm outline-none resize-none"
+
+async function uploadVideoToR2(
+  file: File,
+  onProgress: (pct: number) => void,
+): Promise<string> {
+  const res = await fetch('/api/upload/presign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename: file.name, contentType: file.type, folder: 'lessons' }),
+  })
+  const { uploadUrl, publicUrl } = await res.json()
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.upload.addEventListener('progress', e => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
+    })
+    xhr.addEventListener('load', () => (xhr.status < 300 ? resolve() : reject(new Error('Upload failed'))))
+    xhr.addEventListener('error', reject)
+    xhr.open('PUT', uploadUrl)
+    xhr.setRequestHeader('Content-Type', file.type)
+    xhr.send(file)
+  })
+
+  return publicUrl
+}
+
+function VideoUploadField({
+  value, onChange,
+}: { value: string; onChange: (url: string) => void }) {
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function handleFile(file: File) {
+    setUploading(true)
+    setProgress(0)
+    try {
+      const url = await uploadVideoToR2(file, setProgress)
+      onChange(url)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="URL do vídeo (YouTube, Vimeo, MP4...) ou faça upload abaixo"
+        className={inp}
+        style={inpStyle}
+      />
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50 transition-all hover:opacity-80"
+          style={{ backgroundColor: '#0B0501', color: '#fff' }}
+        >
+          <Upload size={13} />
+          {uploading ? `Enviando... ${progress}%` : 'Upload de vídeo'}
+        </button>
+        {uploading && (
+          <div className="flex-1 rounded-full overflow-hidden" style={{ backgroundColor: '#e0e0e0', height: 6 }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, backgroundColor: '#FF6803' }} />
+          </div>
+        )}
+        {value && !uploading && (
+          <span className="text-xs truncate max-w-[200px]" style={{ color: '#9a9a9a' }} title={value}>
+            ✓ vídeo definido
+          </span>
+        )}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+      />
+    </div>
+  )
+}
 
 function LessonRow({
   lesson, onUpdate, onDelete,
@@ -49,8 +135,7 @@ function LessonRow({
     <div className="ml-6 p-4 rounded-xl space-y-3" style={{ backgroundColor: '#fff7f0', border: '1.5px solid #FF680330' }}>
       <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
         placeholder="Título da aula" className={inp} style={inpStyle} />
-      <input value={form.video_url} onChange={e => setForm(p => ({ ...p, video_url: e.target.value }))}
-        placeholder="URL do vídeo (YouTube, Vimeo, MP4...)" className={inp} style={inpStyle} />
+      <VideoUploadField value={form.video_url} onChange={url => setForm(p => ({ ...p, video_url: url }))} />
       <div className="grid grid-cols-2 gap-3">
         <input type="number" value={form.duration_minutes} onChange={e => setForm(p => ({ ...p, duration_minutes: e.target.value }))}
           placeholder="Duração (min)" className={inp} style={inpStyle} />
@@ -173,8 +258,7 @@ function ModuleBlock({
             <div className="ml-6 p-4 rounded-xl space-y-3" style={{ backgroundColor: '#fff', border: '1.5px solid #e0e0e0' }}>
               <input value={newLesson.title} onChange={e => setNewLesson(p => ({ ...p, title: e.target.value }))}
                 placeholder="Título da aula *" className={inp} style={inpStyle} autoFocus />
-              <input value={newLesson.video_url} onChange={e => setNewLesson(p => ({ ...p, video_url: e.target.value }))}
-                placeholder="URL do vídeo" className={inp} style={inpStyle} />
+              <VideoUploadField value={newLesson.video_url} onChange={url => setNewLesson(p => ({ ...p, video_url: url }))} />
               <input type="number" value={newLesson.duration_minutes} onChange={e => setNewLesson(p => ({ ...p, duration_minutes: e.target.value }))}
                 placeholder="Duração (min)" className={inp} style={inpStyle} />
               <textarea value={newLesson.description} onChange={e => setNewLesson(p => ({ ...p, description: e.target.value }))}

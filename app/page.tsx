@@ -1,11 +1,26 @@
 import Link from 'next/link'
-import { PRODUCTS } from '@/lib/products'
+import { getProducts, DbProduct } from '@/lib/queries'
 import { MessageCircle, ShoppingCart, CheckCircle2, ArrowRight, TrendingUp, Users, Zap } from 'lucide-react'
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic'
+
+function formatPrice(price: number | string | null) {
+  if (!price) return null
+  return parseFloat(String(price)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+function getBuyHref(product: DbProduct): string {
+  if (product.landing_page_url) return product.landing_page_url
+  if (product.kiwify_url) return product.kiwify_url
+  return '/login'
+}
+
+export default async function HomePage() {
+  const products = await getProducts()
   const whatsappBase = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
-  const directProducts = PRODUCTS.filter(p => p.type === 'direct')
-  const whatsappProducts = PRODUCTS.filter(p => p.type === 'whatsapp')
+
+  const mainProducts = products.filter(p => p.access_type !== 'whatsapp')
+  const whatsappProducts = products.filter(p => p.access_type === 'whatsapp')
 
   return (
     <div style={{ backgroundColor: '#E8E8E8', color: '#0B0501' }}>
@@ -46,7 +61,6 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="relative overflow-hidden" style={{ backgroundColor: '#0B0501' }}>
-        {/* Background text */}
         <div
           className="absolute inset-0 flex items-center justify-center font-black pointer-events-none select-none"
           style={{ fontSize: 'clamp(80px, 15vw, 200px)', color: '#ffffff08', letterSpacing: '0.1em', lineHeight: 1 }}
@@ -98,8 +112,8 @@ export default function HomePage() {
         <div style={{ backgroundColor: '#FF6803' }}>
           <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: '8', label: 'produtos e serviços' },
-              { value: '3', label: 'ferramentas digitais' },
+              { value: String(products.length), label: 'produtos e serviços' },
+              { value: String(mainProducts.length), label: 'ferramentas digitais' },
               { value: '100%', label: 'focado em e-commerce' },
               { value: '24h', label: 'suporte pelo WhatsApp' },
             ].map(({ value, label }) => (
@@ -155,7 +169,7 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
             <span className="font-mono text-xs tracking-widest block mb-2" style={{ color: '#FF6803' }}>
-              1 GRATUITO • ACESSO IMEDIATO • ENTREGA DIGITAL
+              GRATUITO DISPONÍVEL • ACESSO IMEDIATO • ENTREGA DIGITAL
             </span>
             <h2 className="font-black text-3xl md:text-4xl" style={{ color: '#0B0501' }}>
               Ferramentas que você<br className="hidden md:block" /> usa hoje mesmo
@@ -167,74 +181,94 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {directProducts.map((product, i) => (
-            <div
-              key={product.slug}
-              className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
-              style={{
-                backgroundColor: i === 0 ? '#0B0501' : '#fff',
-                boxShadow: i === 0 ? '0 8px 32px rgba(0,0,0,0.2)' : '0 1px 4px rgba(0,0,0,0.06)',
-              }}
-            >
-              {i === 0 && (
-                <div className="px-7 pt-5 flex gap-2 flex-wrap">
-                  <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#22c55e20', color: '#16a34a' }}>
-                    🎁 Gratuito
-                  </span>
-                </div>
-              )}
-              <div className="flex flex-col flex-1 p-7 gap-5">
-                <div>
-                  <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>
-                    {product.code}
-                  </span>
-                  <h3
-                    className="text-xl font-black mt-1 leading-tight"
-                    style={{ color: i === 0 ? '#fff' : '#0B0501' }}
-                  >
-                    {product.name}
-                  </h3>
-                </div>
+          {mainProducts.map((product, i) => {
+            const isFree = product.access_type === 'free'
+            const price = formatPrice(product.price)
+            const buyHref = getBuyHref(product)
+            const isHighlighted = i === 0
 
-                <p className="text-sm leading-relaxed flex-1" style={{ color: i === 0 ? '#9a9a9a' : '#6b6b6b' }}>
-                  {product.description}
-                </p>
-
-                {product.features && (
-                  <ul className="space-y-2">
-                    {product.features.map(f => (
-                      <li key={f} className="text-xs flex items-center gap-2" style={{ color: i === 0 ? '#BFBFBF' : '#555' }}>
-                        <CheckCircle2 size={13} style={{ color: '#FF6803', flexShrink: 0 }} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
+            return (
+              <div
+                key={product.slug}
+                className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  backgroundColor: isHighlighted ? '#0B0501' : '#fff',
+                  boxShadow: isHighlighted ? '0 8px 32px rgba(0,0,0,0.2)' : '0 1px 4px rgba(0,0,0,0.06)',
+                }}
+              >
+                {isFree && (
+                  <div className="px-7 pt-5 flex gap-2 flex-wrap">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#22c55e20', color: '#16a34a' }}>
+                      🎁 Gratuito
+                    </span>
+                  </div>
                 )}
-
-                {product.free ? (
-                  <Link
-                    href="/login"
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
-                    style={{ backgroundColor: '#FF6803', color: '#fff' }}
-                  >
-                    Acessar grátis
-                    <ArrowRight size={15} />
-                  </Link>
-                ) : (
-                  <a
-                    href={product.kiwifyUrl ?? '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
-                    style={{ backgroundColor: '#FF6803', color: '#fff' }}
-                  >
-                    <ShoppingCart size={15} />
-                    Comprar agora
-                  </a>
+                {product.type === 'course' && (
+                  <div className="px-7 pt-5 flex gap-2 flex-wrap">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: '#FF680320', color: '#FF6803' }}>
+                      📚 Curso
+                    </span>
+                  </div>
                 )}
+                <div className="flex flex-col flex-1 p-7 gap-5">
+                  <div>
+                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>
+                      {product.code}
+                    </span>
+                    <h3
+                      className="text-xl font-black mt-1 leading-tight"
+                      style={{ color: isHighlighted ? '#fff' : '#0B0501' }}
+                    >
+                      {product.name}
+                    </h3>
+                  </div>
+
+                  <p className="text-sm leading-relaxed flex-1" style={{ color: isHighlighted ? '#9a9a9a' : '#6b6b6b' }}>
+                    {product.description}
+                  </p>
+
+                  {product.features && product.features.length > 0 && (
+                    <ul className="space-y-2">
+                      {product.features.map(f => (
+                        <li key={f} className="text-xs flex items-center gap-2" style={{ color: isHighlighted ? '#BFBFBF' : '#555' }}>
+                          <CheckCircle2 size={13} style={{ color: '#FF6803', flexShrink: 0 }} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {price && !isFree && (
+                    <div className="font-black text-2xl" style={{ color: isHighlighted ? '#fff' : '#0B0501' }}>
+                      {price}
+                    </div>
+                  )}
+
+                  {isFree ? (
+                    <Link
+                      href="/login"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                      style={{ backgroundColor: '#FF6803', color: '#fff' }}
+                    >
+                      Acessar grátis
+                      <ArrowRight size={15} />
+                    </Link>
+                  ) : (
+                    <a
+                      href={buyHref}
+                      target={buyHref.startsWith('http') ? '_blank' : undefined}
+                      rel={buyHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                      style={{ backgroundColor: '#FF6803', color: '#fff' }}
+                    >
+                      <ShoppingCart size={15} />
+                      {product.landing_page_url ? 'Ver oferta' : 'Comprar agora'}
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
@@ -261,67 +295,70 @@ export default function HomePage() {
       </section>
 
       {/* SERVIÇOS */}
-      <section id="servicos" className="max-w-7xl mx-auto px-6 pb-16 md:pb-20">
-        <div className="mb-10">
-          <span className="font-mono text-xs tracking-widest block mb-2" style={{ color: '#FF6803' }}>
-            SERVIÇOS PERSONALIZADOS • VIA WHATSAPP
-          </span>
-          <h2 className="font-black text-3xl md:text-4xl" style={{ color: '#0B0501' }}>
-            Quer um especialista<br className="hidden md:block" /> do seu lado?
-          </h2>
-          <p className="text-sm mt-3 max-w-lg" style={{ color: '#6b6b6b' }}>
-            Nossos serviços são pensados para e-commerces que querem crescer com estratégia, não na tentativa e erro.
-          </p>
-        </div>
+      {whatsappProducts.length > 0 && (
+        <section id="servicos" className="max-w-7xl mx-auto px-6 pb-16 md:pb-20">
+          <div className="mb-10">
+            <span className="font-mono text-xs tracking-widest block mb-2" style={{ color: '#FF6803' }}>
+              SERVIÇOS PERSONALIZADOS • VIA WHATSAPP
+            </span>
+            <h2 className="font-black text-3xl md:text-4xl" style={{ color: '#0B0501' }}>
+              Quer um especialista<br className="hidden md:block" /> do seu lado?
+            </h2>
+            <p className="text-sm mt-3 max-w-lg" style={{ color: '#6b6b6b' }}>
+              Nossos serviços são pensados para e-commerces que querem crescer com estratégia, não na tentativa e erro.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {whatsappProducts.map(product => {
-            const whatsappUrl = `https://wa.me/${whatsappBase}?text=${encodeURIComponent(product.whatsappMessage ?? '')}`
-            return (
-              <div
-                key={product.slug}
-                className="rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1"
-                style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-              >
-                <div>
-                  <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>
-                    {product.code}
-                  </span>
-                  <h3 className="font-black text-base mt-1 leading-tight" style={{ color: '#0B0501' }}>
-                    {product.name}
-                  </h3>
-                </div>
-
-                <p className="text-xs leading-relaxed flex-1" style={{ color: '#6b6b6b' }}>
-                  {product.description}
-                </p>
-
-                {product.features && (
-                  <ul className="space-y-1.5">
-                    {product.features.map(f => (
-                      <li key={f} className="text-xs flex items-center gap-2" style={{ color: '#555' }}>
-                        <CheckCircle2 size={12} style={{ color: '#FF6803', flexShrink: 0 }} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
-                  style={{ backgroundColor: '#0B0501', color: '#fff' }}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {whatsappProducts.map(product => {
+              const whatsappUrl = product.whatsapp_url ||
+                `https://wa.me/${whatsappBase}?text=${encodeURIComponent(product.whatsapp_message ?? '')}`
+              return (
+                <div
+                  key={product.slug}
+                  className="rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1"
+                  style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
                 >
-                  <MessageCircle size={14} />
-                  Falar no WhatsApp
-                </a>
-              </div>
-            )
-          })}
-        </div>
-      </section>
+                  <div>
+                    <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#FF6803' }}>
+                      {product.code}
+                    </span>
+                    <h3 className="font-black text-base mt-1 leading-tight" style={{ color: '#0B0501' }}>
+                      {product.name}
+                    </h3>
+                  </div>
+
+                  <p className="text-xs leading-relaxed flex-1" style={{ color: '#6b6b6b' }}>
+                    {product.description}
+                  </p>
+
+                  {product.features && product.features.length > 0 && (
+                    <ul className="space-y-1.5">
+                      {product.features.map(f => (
+                        <li key={f} className="text-xs flex items-center gap-2" style={{ color: '#555' }}>
+                          <CheckCircle2 size={12} style={{ color: '#FF6803', flexShrink: 0 }} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                    style={{ backgroundColor: '#0B0501', color: '#fff' }}
+                  >
+                    <MessageCircle size={14} />
+                    Falar no WhatsApp
+                  </a>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* DIFERENCIAIS */}
       <section id="diferenciais" style={{ backgroundColor: '#0B0501' }}>

@@ -174,6 +174,8 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
 
   const hasReady = queue.some(i => i.status === 'ready')
 
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
   // Editing existing creatives — multiple open at once
   const [openEdits, setOpenEdits] = useState<Set<string>>(new Set())
   const [editForms, setEditForms] = useState<Record<string, Creative>>({})
@@ -366,7 +368,10 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
           <div key={c.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             {/* Row header */}
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: '#f5f5f5' }}>
+              <button
+                onClick={() => c.type === 'video' && c.url ? setPreviewUrl(c.url) : undefined}
+                className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative group/thumb"
+                style={{ backgroundColor: '#f5f5f5', cursor: c.type === 'video' && c.url ? 'pointer' : 'default' }}>
                 {c.thumbnail_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
@@ -375,7 +380,12 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
                 ) : (
                   <ImageIcon size={20} style={{ color: '#FF6803' }} />
                 )}
-              </div>
+                {c.type === 'video' && c.url && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity rounded-xl" style={{ backgroundColor: 'rgba(11,5,1,0.55)' }}>
+                    <Play size={16} className="text-white" fill="white" />
+                  </div>
+                )}
+              </button>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate" style={{ color: '#0B0501' }}>{c.title}</p>
                 <p className="text-xs mt-0.5" style={{ color: '#9a9a9a' }}>{c.niche}{c.creative_type_label ? ` · ${c.creative_type_label}` : ''}</p>
@@ -439,6 +449,30 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Video preview modal */}
+      {previewUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(11,5,1,0.85)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setPreviewUrl(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: 800, width: '100%' }}>
+            <video
+              src={previewUrl}
+              controls
+              autoPlay
+              className="w-full rounded-2xl"
+              style={{ maxHeight: '80vh', backgroundColor: '#000' }}
+            />
+            <button
+              onClick={() => setPreviewUrl(null)}
+              className="mt-3 w-full py-2 rounded-xl text-sm font-semibold"
+              style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

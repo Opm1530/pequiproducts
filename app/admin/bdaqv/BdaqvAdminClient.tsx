@@ -96,10 +96,17 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
     setQueue(q => [...q, newItem])
 
     try {
+      // For images: show local preview immediately while uploading
+      if (!isVideo) {
+        const localPreview = URL.createObjectURL(file)
+        updateItem(key, { localThumb: localPreview, thumbnail_url: localPreview })
+      }
+
       // Upload the main file
       const ext = file.name.split('.').pop() ?? (isVideo ? 'mp4' : 'jpg')
       const url = await uploadToR2(file, 'bdaqv', ext)
-      updateItem(key, { url, status: isVideo ? 'capturing' : 'ready' })
+      // For images the url IS the thumbnail
+      updateItem(key, { url, thumbnail_url: isVideo ? '' : url, status: isVideo ? 'capturing' : 'ready' })
 
       // Auto-capture thumbnail from video
       if (isVideo) {

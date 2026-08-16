@@ -167,6 +167,33 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
 
   const hasReady = queue.some(i => i.status === 'ready')
 
+  // Editing existing creatives
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<Creative | null>(null)
+  const [editSaving, setEditSaving] = useState(false)
+
+  function openEdit(c: Creative) {
+    setEditId(c.id)
+    setEditForm({ ...c })
+  }
+
+  async function saveEdit() {
+    if (!editForm) return
+    setEditSaving(true)
+    const res = await fetch('/api/admin/creatives', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm),
+    })
+    const updated = await res.json()
+    if (res.ok) {
+      setCreatives(prev => prev.map(c => c.id === updated.id ? updated : c))
+      setEditId(null)
+      setEditForm(null)
+    }
+    setEditSaving(false)
+  }
+
   return (
     <div>
       {/* Toolbar */}
@@ -314,28 +341,82 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
         </div>
       )}
 
-      {/* Saved creatives grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* Saved creatives list */}
+      <div className="space-y-3">
         {creatives.map(c => (
-          <div key={c.id} className="relative group rounded-xl overflow-hidden aspect-square" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            {c.thumbnail_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#fff7f0' }}>
-                {c.type === 'video' ? <Play size={28} style={{ color: '#FF6803' }} /> : <ImageIcon size={28} style={{ color: '#FF6803' }} />}
+          <div key={c.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            {/* Row header */}
+            <div className="flex items-center gap-3 px-4 py-3">
+              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: '#f5f5f5' }}>
+                {c.thumbnail_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
+                ) : c.type === 'video' ? (
+                  <Play size={20} style={{ color: '#FF6803' }} />
+                ) : (
+                  <ImageIcon size={20} style={{ color: '#FF6803' }} />
+                )}
               </div>
-            )}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3" style={{ backgroundColor: 'rgba(11,5,1,0.8)' }}>
-              <button onClick={() => handleDelete(c.id)}
-                className="self-end p-1.5 rounded-lg text-white" style={{ backgroundColor: '#ef4444' }}>
-                <Trash2 size={14} />
-              </button>
-              <div>
-                <p className="text-white text-xs font-semibold line-clamp-2">{c.title}</p>
-                <span className="text-xs" style={{ color: '#FF6803' }}>{c.niche}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate" style={{ color: '#0B0501' }}>{c.title}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#9a9a9a' }}>{c.niche}{c.creative_type_label ? ` · ${c.creative_type_label}` : ''}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => editId === c.id ? setEditId(null) : openEdit(c)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={{ backgroundColor: editId === c.id ? '#0B0501' : '#F2F2F2', color: editId === c.id ? '#fff' : '#0B0501' }}>
+                  {editId === c.id ? 'Fechar' : 'Editar'}
+                </button>
+                <button onClick={() => handleDelete(c.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#ef4444' }}>
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
+
+            {/* Edit panel */}
+            {editId === c.id && editForm && (
+              <div className="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t" style={{ borderColor: '#F2F2F2' }}>
+                <div className="sm:col-span-2 pt-3">
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Título</label>
+                  <input value={editForm.title} onChange={e => setEditForm(f => f && { ...f, title: e.target.value })}
+                    className={inp} style={inpSt} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Nicho</label>
+                  <input value={editForm.niche} onChange={e => setEditForm(f => f && { ...f, niche: e.target.value })}
+                    className={inp} style={inpSt} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Tipo de criativo</label>
+                  <input value={editForm.creative_type_label ?? ''} onChange={e => setEditForm(f => f && { ...f, creative_type_label: e.target.value })}
+                    placeholder="ex: Vídeo conceitual, UGC" className={inp} style={inpSt} />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Pontos de atenção</label>
+                  <textarea value={editForm.attention_points ?? ''} onChange={e => setEditForm(f => f && { ...f, attention_points: e.target.value })}
+                    rows={3} className={ta} style={inpSt} />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Como replicar</label>
+                  <textarea value={editForm.how_to_replicate ?? ''} onChange={e => setEditForm(f => f && { ...f, how_to_replicate: e.target.value })}
+                    rows={4} className={ta} style={inpSt} />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Descrição (opcional)</label>
+                  <textarea value={editForm.description ?? ''} onChange={e => setEditForm(f => f && { ...f, description: e.target.value })}
+                    rows={2} className={ta} style={inpSt} />
+                </div>
+                <div className="sm:col-span-2 flex justify-end">
+                  <button onClick={saveEdit} disabled={editSaving}
+                    className="px-5 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                    style={{ backgroundColor: '#FF6803' }}>
+                    {editSaving ? 'Salvando...' : 'Salvar alterações'}
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         ))}
       </div>

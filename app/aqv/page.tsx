@@ -1,6 +1,8 @@
 import BuyButton from './BuyButton'
 import { getProductBySlug } from '@/lib/queries'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = { title: 'AQV — Anúncios que Vendem | Pequi Digital' }
 
 const faq = [

@@ -1,6 +1,8 @@
 import BuyButton from './BuyButton'
 import { getProductBySlug } from '@/lib/queries'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = { title: 'EQV — E-commerce que Vende | Pequi Digital' }
 
 function formatPrice(price: number | string | null) {

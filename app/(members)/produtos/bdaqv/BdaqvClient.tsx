@@ -83,9 +83,9 @@ export default function BdaqvClient({ creatives, niches }: Props) {
               className="group relative rounded-2xl overflow-hidden aspect-square text-left transition-all hover:-translate-y-1"
               style={{ backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
             >
-              {c.thumbnail_url ? (
+              {(c.thumbnail_url || (c.type === 'image' && c.url)) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
+                <img src={c.thumbnail_url || c.url} alt={c.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#fff7f0' }}>
                   {c.type === 'video'

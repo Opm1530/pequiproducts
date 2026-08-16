@@ -372,9 +372,9 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
                 onClick={() => c.type === 'video' && c.url ? setPreviewUrl(c.url) : undefined}
                 className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative group/thumb"
                 style={{ backgroundColor: '#f5f5f5', cursor: c.type === 'video' && c.url ? 'pointer' : 'default' }}>
-                {c.thumbnail_url ? (
+                {(c.thumbnail_url || (c.type === 'image' && c.url)) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
+                  <img src={c.thumbnail_url || c.url} alt={c.title} className="w-full h-full object-cover" />
                 ) : c.type === 'video' ? (
                   <Play size={20} style={{ color: '#FF6803' }} />
                 ) : (

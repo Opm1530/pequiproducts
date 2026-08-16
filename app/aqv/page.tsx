@@ -1,14 +1,22 @@
 import BuyButton from './BuyButton'
+import { getProductBySlug } from '@/lib/queries'
 
 export const metadata = { title: 'AQV — Anúncios que Vendem | Pequi Digital' }
 
 const faq = [
   { q: 'Tem garantia?', a: 'Sim! Você terá garantia total de 7 dias, podendo solicitar o reembolso pela própria plataforma caso seja necessário.' },
-  { q: 'Quanto custa?', a: 'O AQV custa apenas R$29,90 e isso já inclui atualizações futuras.' },
+  { q: 'Quanto custa?', a: 'O AQV custa apenas {priceLabel} e isso já inclui atualizações futuras.' },
   { q: 'Posso copiar os conteúdos?', a: 'Sim. Utilize como uma fonte de ideias e referência para produzir seus anúncios conforme a cara da sua marca, pois conteúdo autêntico vende mais!' },
 ]
 
-export default function AqvPage() {
+function formatPrice(price: number | string | null) {
+  if (!price) return null
+  return parseFloat(String(price)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+export default async function AqvPage() {
+  const product = await getProductBySlug('aqv')
+  const priceLabel = formatPrice(product?.price ?? null) ?? 'R$29,90'
   return (
     <main style={{ backgroundColor: '#0B0501', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', color: '#F5F0E8' }}>
 
@@ -40,7 +48,7 @@ export default function AqvPage() {
             cursor: 'pointer', letterSpacing: '0.01em',
           } as React.CSSProperties}
         >
-          Quero o AQV por R$29,90
+          Quero o AQV por {priceLabel}
         </BuyButton>
 
         <p style={{ marginTop: 12, fontSize: 13, color: '#7A7068' }}>7 dias de garantia · Acesso imediato</p>
@@ -90,7 +98,7 @@ export default function AqvPage() {
               cursor: 'pointer',
             } as React.CSSProperties}
           >
-            Quero o AQV por R$29,90
+            Quero o AQV por {priceLabel}
           </BuyButton>
           <p style={{ marginTop: 12, fontSize: 13, color: '#7A7068' }}>7 dias de garantia · Acesso imediato</p>
         </div>
@@ -120,7 +128,7 @@ export default function AqvPage() {
               cursor: 'pointer',
             } as React.CSSProperties}
           >
-            Quero o AQV por R$29,90
+            Quero o AQV por {priceLabel}
           </BuyButton>
           <p style={{ marginTop: 12, fontSize: 13, color: '#7A7068' }}>7 dias de garantia · Acesso imediato</p>
         </div>

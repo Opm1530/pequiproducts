@@ -1,6 +1,12 @@
 import BuyButton from './BuyButton'
+import { getProductBySlug } from '@/lib/queries'
 
 export const metadata = { title: 'EQV — E-commerce que Vende | Pequi Digital' }
+
+function formatPrice(price: number | string | null) {
+  if (!price) return null
+  return parseFloat(String(price)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
 
 const learnings = [
   'Como construir ou otimizar sua loja',
@@ -11,7 +17,7 @@ const learnings = [
 
 const faq = [
   { q: 'Tem garantia?', a: 'Sim! Você terá garantia total de 7 dias, podendo solicitar o reembolso pela própria plataforma caso seja necessário.' },
-  { q: 'Quanto custa?', a: 'O EQV custa apenas R$29,90 e isso já inclui atualizações futuras.' },
+  { q: 'Quanto custa?', a: 'O EQV custa apenas {priceLabel} e isso já inclui atualizações futuras.' },
   { q: 'Posso contratar o time de vocês?', a: 'Claro! Nossa equipe está à disposição para gerenciar seu tráfego, criar conteúdos, automatizar processos da loja e praticamente tudo o que engloba o marketing e as vendas da marca.' },
 ]
 
@@ -22,7 +28,9 @@ const btnStyle: React.CSSProperties = {
   cursor: 'pointer', letterSpacing: '0.01em',
 }
 
-export default function EqvPage() {
+export default async function EqvPage() {
+  const product = await getProductBySlug('eqv')
+  const priceLabel = formatPrice(product?.price ?? null) ?? 'R$29,90'
   return (
     <main style={{ backgroundColor: '#090F0A', minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', color: '#F0F5F1' }}>
 
@@ -49,7 +57,7 @@ export default function EqvPage() {
         </div>
 
         <BuyButton style={btnStyle}>
-          Quero o EQV por R$29,90
+          Quero o EQV por {priceLabel}
         </BuyButton>
         <p style={{ marginTop: 12, fontSize: 13, color: '#6A7F6D' }}>7 dias de garantia · Acesso imediato</p>
       </section>
@@ -79,7 +87,7 @@ export default function EqvPage() {
       <section style={{ maxWidth: 720, margin: '0 auto', padding: '64px 24px', textAlign: 'center' }}>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#FF6803', marginBottom: 16 }}>Quanto custa?</p>
         <div style={{ fontSize: 'clamp(52px, 10vw, 88px)', fontWeight: 900, color: '#F0F5F1', lineHeight: 1, marginBottom: 8 }}>
-          R$<span style={{ color: '#FF6803' }}>29</span><span style={{ fontSize: '0.5em' }}>,90</span>
+          {priceLabel}
         </div>
         <p style={{ fontSize: 17, lineHeight: 1.8, color: '#8FAF94', maxWidth: 520, margin: '16px auto 40px' }}>
           É um preço simbólico para cobrir os gastos que tivemos para te trazer até aqui. Nessa operação, ganhamos quando seu e-commerce passa a ter resultados e você resolve escalar a operação.
@@ -89,7 +97,7 @@ export default function EqvPage() {
         </p>
 
         <BuyButton style={btnStyle}>
-          Quero o EQV por R$29,90
+          Quero o EQV por {priceLabel}
         </BuyButton>
         <p style={{ marginTop: 12, fontSize: 13, color: '#6A7F6D' }}>7 dias de garantia · Acesso imediato</p>
       </section>
@@ -111,7 +119,7 @@ export default function EqvPage() {
 
         <div style={{ textAlign: 'center', marginTop: 56 }}>
           <BuyButton style={btnStyle}>
-            Quero o EQV por R$29,90
+            Quero o EQV por {priceLabel}
           </BuyButton>
           <p style={{ marginTop: 12, fontSize: 13, color: '#6A7F6D' }}>7 dias de garantia · Acesso imediato</p>
         </div>

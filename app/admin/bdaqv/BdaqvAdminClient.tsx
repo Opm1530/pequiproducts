@@ -167,31 +167,43 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
 
   const hasReady = queue.some(i => i.status === 'ready')
 
-  // Editing existing creatives
-  const [editId, setEditId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<Creative | null>(null)
-  const [editSaving, setEditSaving] = useState(false)
+  // Editing existing creatives — multiple open at once
+  const [openEdits, setOpenEdits] = useState<Set<string>>(new Set())
+  const [editForms, setEditForms] = useState<Record<string, Creative>>({})
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
 
-  function openEdit(c: Creative) {
-    setEditId(c.id)
-    setEditForm({ ...c })
+  function toggleEdit(c: Creative) {
+    setOpenEdits(prev => {
+      const next = new Set(prev)
+      if (next.has(c.id)) {
+        next.delete(c.id)
+      } else {
+        next.add(c.id)
+        setEditForms(f => ({ ...f, [c.id]: { ...c } }))
+      }
+      return next
+    })
   }
 
-  async function saveEdit() {
-    if (!editForm) return
-    setEditSaving(true)
+  function updateEditForm(id: string, patch: Partial<Creative>) {
+    setEditForms(f => ({ ...f, [id]: { ...f[id], ...patch } }))
+  }
+
+  async function saveEdit(id: string) {
+    const form = editForms[id]
+    if (!form) return
+    setSavingIds(prev => new Set(prev).add(id))
     const res = await fetch('/api/admin/creatives', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify(form),
     })
     const updated = await res.json()
     if (res.ok) {
       setCreatives(prev => prev.map(c => c.id === updated.id ? updated : c))
-      setEditId(null)
-      setEditForm(null)
+      setOpenEdits(prev => { const next = new Set(prev); next.delete(id); return next })
     }
-    setEditSaving(false)
+    setSavingIds(prev => { const next = new Set(prev); next.delete(id); return next })
   }
 
   return (
@@ -362,10 +374,10 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
                 <p className="text-xs mt-0.5" style={{ color: '#9a9a9a' }}>{c.niche}{c.creative_type_label ? ` · ${c.creative_type_label}` : ''}</p>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => editId === c.id ? setEditId(null) : openEdit(c)}
+                <button onClick={() => toggleEdit(c)}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                  style={{ backgroundColor: editId === c.id ? '#0B0501' : '#F2F2F2', color: editId === c.id ? '#fff' : '#0B0501' }}>
-                  {editId === c.id ? 'Fechar' : 'Editar'}
+                  style={{ backgroundColor: openEdits.has(c.id) ? '#0B0501' : '#F2F2F2', color: openEdits.has(c.id) ? '#fff' : '#0B0501' }}>
+                  {openEdits.has(c.id) ? 'Fechar' : 'Editar'}
                 </button>
                 <button onClick={() => handleDelete(c.id)}
                   className="p-1.5 rounded-lg hover:bg-red-50" style={{ color: '#ef4444' }}>
@@ -375,43 +387,43 @@ export default function BdaqvAdminClient({ initialCreatives }: Props) {
             </div>
 
             {/* Edit panel */}
-            {editId === c.id && editForm && (
+            {openEdits.has(c.id) && editForms[c.id] && (
               <div className="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t" style={{ borderColor: '#F2F2F2' }}>
                 <div className="sm:col-span-2 pt-3">
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Título</label>
-                  <input value={editForm.title} onChange={e => setEditForm(f => f && { ...f, title: e.target.value })}
+                  <input value={editForms[c.id].title} onChange={e => updateEditForm(c.id, { title: e.target.value })}
                     className={inp} style={inpSt} />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Nicho</label>
-                  <input value={editForm.niche} onChange={e => setEditForm(f => f && { ...f, niche: e.target.value })}
+                  <input value={editForms[c.id].niche} onChange={e => updateEditForm(c.id, { niche: e.target.value })}
                     className={inp} style={inpSt} />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Tipo de criativo</label>
-                  <input value={editForm.creative_type_label ?? ''} onChange={e => setEditForm(f => f && { ...f, creative_type_label: e.target.value })}
+                  <input value={editForms[c.id].creative_type_label ?? ''} onChange={e => updateEditForm(c.id, { creative_type_label: e.target.value })}
                     placeholder="ex: Vídeo conceitual, UGC" className={inp} style={inpSt} />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Pontos de atenção</label>
-                  <textarea value={editForm.attention_points ?? ''} onChange={e => setEditForm(f => f && { ...f, attention_points: e.target.value })}
+                  <textarea value={editForms[c.id].attention_points ?? ''} onChange={e => updateEditForm(c.id, { attention_points: e.target.value })}
                     rows={3} className={ta} style={inpSt} />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Como replicar</label>
-                  <textarea value={editForm.how_to_replicate ?? ''} onChange={e => setEditForm(f => f && { ...f, how_to_replicate: e.target.value })}
+                  <textarea value={editForms[c.id].how_to_replicate ?? ''} onChange={e => updateEditForm(c.id, { how_to_replicate: e.target.value })}
                     rows={4} className={ta} style={inpSt} />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold mb-1" style={{ color: '#0B0501' }}>Descrição (opcional)</label>
-                  <textarea value={editForm.description ?? ''} onChange={e => setEditForm(f => f && { ...f, description: e.target.value })}
+                  <textarea value={editForms[c.id].description ?? ''} onChange={e => updateEditForm(c.id, { description: e.target.value })}
                     rows={2} className={ta} style={inpSt} />
                 </div>
                 <div className="sm:col-span-2 flex justify-end">
-                  <button onClick={saveEdit} disabled={editSaving}
+                  <button onClick={() => saveEdit(c.id)} disabled={savingIds.has(c.id)}
                     className="px-5 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
                     style={{ backgroundColor: '#FF6803' }}>
-                    {editSaving ? 'Salvando...' : 'Salvar alterações'}
+                    {savingIds.has(c.id) ? 'Salvando...' : 'Salvar alterações'}
                   </button>
                 </div>
               </div>
